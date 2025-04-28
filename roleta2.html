@@ -17,7 +17,7 @@
       border-radius: 50%;
       margin-top: 20px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      max-width: 100%;
+      width: 80%; /* Ajusta a largura do canvas para caber bem em telas pequenas */
       height: auto;
     }
     #btnGirar {
@@ -30,6 +30,8 @@
       font-size: 20px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      width: 80%; /* Ajusta o botão para telas menores */
+      max-width: 400px; /* Limita o tamanho máximo do botão */
     }
     #btnGirar:hover {
       background-color: #ffcc00; /* Cor mais vibrante ao passar o mouse */
@@ -80,6 +82,9 @@
       #resultado {
         font-size: 20px;
       }
+      canvas {
+        width: 90%; /* Ajusta o canvas para ser um pouco maior em telas pequenas */
+      }
     }
   </style>
 </head>
@@ -89,7 +94,7 @@
 
 <div>
   <label for="codigo">O que você queria ser quando crescer?</label>
-  <input type="text" id="codigo" placeholder="" enabled />
+  <input type="text" id="codigo" placeholder="Escreva aqui" enabled />
   <button id="btnGirar">Responder</button>
 </div>
 
