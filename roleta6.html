@@ -2,18 +2,23 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsividade -->
   <title>Roleta do Pix</title>
   <style>
     body {
       text-align: center;
       background: linear-gradient(to bottom right, #f7c6b4, #f7b3d9); /* Tons suaves de rosa e lilás */
       font-family: 'Comic Sans MS', cursive, sans-serif;
+      margin: 0;
+      padding: 0;
     }
     canvas {
       background: #fff;
       border-radius: 50%;
       margin-top: 20px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 80%; /* Ajusta a largura do canvas para caber bem em telas pequenas */
+      height: auto;
     }
     #btnGirar {
       margin-top: 20px;
@@ -25,6 +30,8 @@
       font-size: 20px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      width: 80%; /* Ajusta o botão para telas menores */
+      max-width: 400px; /* Limita o tamanho máximo do botão */
     }
     #btnGirar:hover {
       background-color: #ffcc00; /* Cor mais vibrante ao passar o mouse */
@@ -44,6 +51,8 @@
       border-radius: 20px;
       border: 2px solid #ffcc00;
       font-family: 'Comic Sans MS', cursive, sans-serif;
+      width: 80%; /* Ajusta o tamanho do campo para telas menores */
+      max-width: 300px; /* Limita o tamanho máximo */
     }
     label {
       font-size: 18px;
@@ -60,6 +69,23 @@
       margin-top: 20px;
       text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
     }
+    
+    /* Media Query para telas menores */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 20px;
+      }
+      #btnGirar {
+        font-size: 18px;
+        padding: 10px 25px;
+      }
+      #resultado {
+        font-size: 20px;
+      }
+      canvas {
+        width: 90%; /* Ajusta o canvas para ser um pouco maior em telas pequenas */
+      }
+    }
   </style>
 </head>
 <body>
@@ -68,18 +94,22 @@
 
 <div>
   <label for="codigo">O que é que todos tem 2, você tem 1 e eu não tenho nenhum?</label>
-  <input type="text" id="codigo" placeholder="" enabled />
-  <button id="btnGirar">Girar e Celebrar!</button>
+  <input type="text" id="codigo" placeholder="Escreva aqui" enabled />
+  <button id="btnGirar">Responder</button>
 </div>
 
 <canvas id="roleta" width="400" height="400"></canvas><br>
 <div id="resultado"></div>
+
+<!-- Áudio da roleta, com o MP3 de um site -->
+<audio id="somRoleta" src="roleta.mp3" preload="auto"></audio>
 
 <script>
 const canvas = document.getElementById("roleta");
 const ctx = canvas.getContext("2d");
 
 const btnGirar = document.getElementById("btnGirar");
+const somRoleta = document.getElementById("somRoleta"); // Referência ao áudio
 
 let girando = false;
 
@@ -149,6 +179,7 @@ function desenharRoleta() {
 function girarRoleta() {
   if (girando) return;
   girando = true;
+  somRoleta.play(); // Inicia o som quando começa a girar
   const rotacaoExtra = Math.random() * 2 * Math.PI;
   const rotacaoCompleta = 10 * 2 * Math.PI; // 10 voltas
   const rotacaoFinal = rotacaoCompleta + rotacaoExtra;
@@ -166,6 +197,8 @@ function girarRoleta() {
       requestAnimationFrame(animar);
     } else {
       girando = false;
+      somRoleta.pause(); // Para o som quando a roleta parar
+      somRoleta.currentTime = 0; // Reseta o tempo do áudio
       mostrarResultado();
       btnGirar.disabled = true; // Desabilita o botão após o primeiro clique
     }
