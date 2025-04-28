@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Roleta do Pix</title>
+  <style>
+    body {
+      text-align: center;
+      background: linear-gradient(to bottom right, #f7c6b4, #f7b3d9); /* Tons suaves de rosa e lilás */
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+    canvas {
+      background: #fff;
+      border-radius: 50%;
+      margin-top: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    #btnGirar {
+      margin-top: 20px;
+      padding: 12px 30px;
+      background-color: #ffd700; /* Dourado para um toque de festa */
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #btnGirar:hover {
+      background-color: #ffcc00; /* Cor mais vibrante ao passar o mouse */
+    }
+    #resultado {
+      margin-top: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      font-family: 'Lucida Handwriting', cursive;
+      color: #ff6f61; /* Tom quente e festivo */
+    }
+    #codigo {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 20px;
+      border: 2px solid #ffcc00;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+    label {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ff6f61;
+      margin-top: 20px;
+      display: block;
+      font-family: 'Lucida Handwriting', cursive;
+    }
+    h1 {
+      font-family: 'Lucida Handwriting', cursive;
+      color: #ff5733; /* Cor quente para o título */
+      font-size: 24px;
+      margin-top: 20px;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+<h1>Roleta do Pix</h1>
+
+<div>
+  <label for="codigo">Qual o apelido mais engraçado que você tinha quando era criança?</label>
+  <input type="text" id="codigo" placeholder="" enabled />
+  <button id="btnGirar">Girar e Celebrar!</button>
+</div>
+
+<canvas id="roleta" width="400" height="400"></canvas><br>
+<div id="resultado"></div>
+
+<script>
+const canvas = document.getElementById("roleta");
+const ctx = canvas.getContext("2d");
+
+const btnGirar = document.getElementById("btnGirar");
+
+let girando = false;
+
+function embaralharArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+const opcoes = [
+  "5 Reais", "5 Reais", "2 Reais",
+  "1 Real", "2 reais", "5 Reais", "10 Reais", "20 Reais",
+  "10 Reais", "10 Reais", "10 Reais", "10 Reais",
+  "20 Reais", "20 Reais", "20 Reais",
+  "30 Reais", "30 Reais",
+  "50 Reais",
+  "100 Reais"
+];
+
+embaralharArray(opcoes);
+const colors = ["#FFCC00", "#FFD700"]; /* Cores douradas e vibrantes */
+const numOpcoes = opcoes.length;
+const anguloPorOpcao = 2 * Math.PI / numOpcoes;
+let anguloAtual = 0;
+
+function desenharRoleta() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const raio = canvas.width / 2;
+  ctx.save();
+  ctx.translate(raio, raio);
+  ctx.rotate(anguloAtual);
+
+  for (let i = 0; i < numOpcoes; i++) {
+    const anguloInicial = i * anguloPorOpcao;
+    const anguloFinal = anguloInicial + anguloPorOpcao;
+
+    // Desenha a fatia
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, raio, anguloInicial, anguloFinal);
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+    ctx.stroke();
+
+    // Desenha o texto
+    ctx.save();
+    ctx.rotate(anguloInicial + anguloPorOpcao / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#000";
+    ctx.font = "bold 14px Arial";
+    ctx.fillText(opcoes[i], raio - 10, 5);
+    ctx.restore();
+  }
+
+  ctx.restore();
+
+  // Desenha a seta (movida para a direita)
+  ctx.beginPath();
+  ctx.moveTo(canvas.width - 0, canvas.height / 2 - 10); // Seta movida para a direita
+  ctx.lineTo(canvas.width - 0, canvas.height / 2 + 10);
+  ctx.lineTo(canvas.width - 40, canvas.height / 2);
+  ctx.fillStyle = "red";
+  ctx.fill();
+}
+
+function girarRoleta() {
+  if (girando) return;
+  girando = true;
+  const rotacaoExtra = Math.random() * 2 * Math.PI;
+  const rotacaoCompleta = 10 * 2 * Math.PI; // 10 voltas
+  const rotacaoFinal = rotacaoCompleta + rotacaoExtra;
+  const duracao = 5000; // 5 segundos
+  const inicio = performance.now();
+
+  function animar(tempoAtual) {
+    const tempoDecorrido = tempoAtual - inicio;
+    const progresso = Math.min(tempoDecorrido / duracao, 1);
+    const easing = 1 - Math.pow(1 - progresso, 3); // easeOutCubic
+    anguloAtual = rotacaoFinal * easing;
+    desenharRoleta();
+
+    if (progresso < 1) {
+      requestAnimationFrame(animar);
+    } else {
+      girando = false;
+      mostrarResultado();
+      btnGirar.disabled = true; // Desabilita o botão após o primeiro clique
+    }
+  }
+
+  requestAnimationFrame(animar);
+}
+
+function mostrarResultado() {
+  const anguloFinal = (2 * Math.PI - (anguloAtual % (2 * Math.PI))) % (2 * Math.PI);
+  const index = Math.floor(anguloFinal / anguloPorOpcao) % numOpcoes;
+  document.getElementById("resultado").innerText = "Você ganhou " + opcoes[index];
+}
+
+document.getElementById("btnGirar").addEventListener("click", girarRoleta);
+
+desenharRoleta();
+</script>
+
+</body>
+</html>
